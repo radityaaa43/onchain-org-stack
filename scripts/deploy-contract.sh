@@ -3,11 +3,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+export ROOT_DIR
 
 # shellcheck source=scripts/render.sh
 source "${SCRIPT_DIR}/render.sh"
 
 BESU_RPC="${BESU_RPC:-http://besu-node1.paladin.svc:8545}"
+export BESU_RPC
 PF_PID=""
 
 cleanup() {
@@ -24,8 +26,16 @@ if ! curl -sf --max-time 3 "${BESU_RPC}" -X POST \
   echo "In-cluster RPC unreachable, starting port-forward..."
   kubectl port-forward -n paladin svc/besu-node1 18545:8545 &
   PF_PID=$!
-  sleep 3
   BESU_RPC="http://localhost:18545"
+  export BESU_RPC
+  for _i in $(seq 1 15); do
+    if curl -sf --max-time 2 "http://localhost:18545" -X POST \
+        -H 'Content-Type: application/json' \
+        -d '{"jsonrpc":"2.0","method":"net_version","params":[],"id":1}' >/dev/null 2>&1; then
+      break
+    fi
+    sleep 1
+  done
 fi
 
 # Verify chain is producing blocks
@@ -33,6 +43,11 @@ BLOCK_HEX=$(curl -sf --max-time 10 "${BESU_RPC}" -X POST \
   -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['result'])")
+
+if [[ "${BLOCK_HEX}" == "null" || -z "${BLOCK_HEX}" ]]; then
+  echo "ERROR: eth_blockNumber returned null — chain not started or RPC error" >&2
+  exit 1
+fi
 
 BLOCK_NUM=$(python3 -c "print(int('${BLOCK_HEX}', 16))")
 if [[ "${BLOCK_NUM}" -le 0 ]]; then
@@ -89,6 +104,7 @@ build_tx = Contract.constructor().build_transaction({
     **tx_params,
     "nonce": nonce,
     "gas": 3000000,
+    "chainId": int(os.environ.get("BESU_CHAIN_ID", "1337")),
 })
 
 if w3.eth.accounts:
@@ -104,9 +120,6 @@ assert receipt.status == 1, f"Deploy tx failed: {receipt}"
 print(receipt.contractAddress)
 PYEOF
 )
-
-export ROOT_DIR
-export BESU_RPC
 
 if [[ -z "${CONTRACT_ADDR}" ]]; then
   echo "ERROR: no contract address returned" >&2
@@ -128,8 +141,12 @@ for f in \
   "${ROOT_DIR}/middleware/firefly/firefly-config.yaml" \
   "${ROOT_DIR}/middleware/firefly/multiparty-app.yaml"; do
   if [[ -f "${f}" ]]; then
-    sed -i "s|PLACEHOLDER_CONTRACT_ADDR|${CONTRACT_ADDR}|g" "${f}"
-    echo "Patched ${f}"
+    if grep -q "PLACEHOLDER_CONTRACT_ADDR" "${f}"; then
+      sed -i "s|PLACEHOLDER_CONTRACT_ADDR|${CONTRACT_ADDR}|g" "${f}"
+      echo "Patched ${f}"
+    else
+      echo "Already patched (or no placeholder): ${f}"
+    fi
   fi
 done
 

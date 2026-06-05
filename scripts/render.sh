@@ -59,6 +59,9 @@ pairs = [
     ("BESU_IMAGE_TAG",        besu.get("imageTag", "latest")),
     ("PALADIN_BASE_PORT",     str(pbase)),
     ("PALADIN_IMAGE_TAG",     paladin.get("imageTag", "latest")),
+    ("PALADIN_DOMAIN_NOTO",  str(paladin.get("domains", {}).get("noto", True)).lower()),
+    ("PALADIN_DOMAIN_ZETO",  str(paladin.get("domains", {}).get("zeto", True)).lower()),
+    ("PALADIN_DOMAIN_PENTE", str(paladin.get("domains", {}).get("pente", True)).lower()),
     ("CROSS_ORG_MODE",        cross.get("mode", "standalone")),
     ("REPO_URL",              repo.get("url", "")),
     ("REPO_REVISION",         repo.get("revision", "HEAD")),
@@ -71,7 +74,10 @@ PYEOF
 
 # Export all vars into current shell
 _export_vars() {
-  while IFS='=' read -r key val; do
+  local line
+  while IFS= read -r line; do
+    local key="${line%%=*}"
+    local val="${line#*=}"
     export "$key=$val"
   done < <(_parse_config)
 }

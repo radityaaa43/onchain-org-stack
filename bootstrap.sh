@@ -55,6 +55,11 @@ kubectl apply -f platform/argocd/root-app.yaml
 log "STEP 4: Vault - deploy and unseal"
 kubectl apply -f secrets/vault/vault-app.yaml
 
+echo "Waiting for ArgoCD to sync vault application..."
+kubectl wait application/vault \
+  --namespace argocd \
+  --for=jsonpath='{.status.sync.status}'=Synced \
+  --timeout=300s 2>/dev/null || true
 echo "Waiting for vault pod to be ready..."
 kubectl wait pod \
   --selector app.kubernetes.io/name=vault \
@@ -71,8 +76,11 @@ bash scripts/deploy-data.sh
 # ─── STEP 6: kafka, ipfs, scylla ─────────────
 log "STEP 6: kafka, ipfs, scylla"
 kubectl apply -f data/kafka/kafka-operator-app.yaml
-echo "Waiting 30s for Strimzi operator to be ready..."
-sleep 30
+echo "Waiting for Strimzi cluster operator to be ready..."
+kubectl wait deployment/strimzi-cluster-operator \
+  --namespace kafka \
+  --for=condition=Available \
+  --timeout=300s
 kubectl apply -f data/kafka/kafka-cluster-app.yaml
 
 kubectl apply -f data/ipfs/ipfs-app.yaml
