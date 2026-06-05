@@ -20,6 +20,7 @@ spec:
           defaultBlockchainType: ethereum
 
           organizationName: "org1"
+          organizationKey: "0x75a99473917701038e854ef6999c76cd947c9f9e"
 
           fireflyContractAddress: "0x42699A7612A82f1d9C36148af9C77354759b210b"
           fireflyContractFirstEvent: 0
