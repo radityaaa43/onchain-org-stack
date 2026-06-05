@@ -8,9 +8,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://hyperledger.github.io/firefly-helm-charts
-    chart: firefly-evmconnect
-    targetRevision: "*"
+    repoURL: https://github.com/radityaaa43/onchain-org-stack
+    targetRevision: HEAD
+    path: vendor/firefly-evmconnect
     helm:
       values: |
         connector:

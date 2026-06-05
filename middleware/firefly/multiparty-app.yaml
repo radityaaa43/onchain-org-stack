@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/hyperledger/firefly-helm-charts.git
-    targetRevision: main
-    path: charts/firefly
+    repoURL: https://github.com/radityaaa43/onchain-org-stack
+    targetRevision: HEAD
+    path: vendor/firefly-core
     helm:
       values: |
         config:

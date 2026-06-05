@@ -1,0 +1,664 @@
+# Copyright © 2024 Kaleido, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://swww.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Templates the firefly.core configuration file of FireFly, and in some cases configures which ports are exposed.
+config:
+  # Enables the FireFly debug port on 6060 and `DEBUG` level logs
+  debugEnabled: false
+
+  # Enables the Admin API port for dynamic configuration
+  adminEnabled: true
+
+  # The public URL of the Admin API server, if not set defaults to the Service URL within Kubernetes
+  adminPublicUrl: ""
+
+  # The public URL of the Firefly API server, if not set defaults to the Ingress URL or the Service URL within Kubernetes
+  httpPublicUrl: ""
+
+  # Allows customizing the TLS configuration for the API server such as for pass-through TLS or mTLS
+  # see https://hyperledger.github.io/firefly/reference/config.html#httptls for configuration options
+  httpTls: {}
+  #   caFile: /etc/pki/internal/ca.crt
+  #   certFile: /etc/pki/internaltls.crt
+  #   keyFile: /etc/pki/internal/tls.key
+  #   enabled: true
+  #   clientAuth: true
+
+  # Enables the metrics server / port for Prometheus scraping
+  metricsEnabled: true
+
+  # Configures the path on which Prometheus metrics are served, useful if you need to change it to match existing Prometheus scrape configs
+  metricsPath: /metrics
+
+  # Puts a fresh FireFly node into the preinit state, allowing an operator to then setup smart contracts, apply database migrations, etc. before re-configuring the node to proceed.
+  # It is _not_ recommended to configure FireFly nodes in a preinit state for non-development scenarios.
+  preInit: false
+
+  # The name of the organization the FireFly node belongs to
+  organizationName: ""
+
+  # The blockchain signing key of the organization e.g. the Ethereum account address or the Fabric membership
+  organizationKey: ""
+
+  # The URL + URI Go template of an address resolver connector
+  addresssResolverUrlTemplate: ""
+
+  # The Ethereum address of the _original_, pre-deployed FireFly smart contract
+  fireflyContractAddress: "contractAddress"
+
+  # The block number of when the first event of the FireFly smart contract occurs
+  fireflyContractFirstEvent: 0
+
+  # The Ethereum address(es) or Fabric chaincode(s) of the additional FireFly smart contract instances
+  fireflyContracts: []
+  # for ethereum
+  #  - address: "contractAddress"
+  #    firstEvent: 1000
+  # for fabric
+  #  - chaincode: "chaincode"
+  #    channel: "default"
+  #    firstEvent: ""
+
+  # The name of the Fabric chaincode deployment for the FireFly chaincode
+  fireflyChaincode: firefly_go
+
+  # The Postgres URL (including credentials and DB) for FireFly to for the database plugin
+  postgresUrl: ""
+
+  # Whether or not to apply schema migrations automatically on startup, not recommended for production
+  postgresAutomigrate: false
+
+  # The URL of the HTTPS DataExchange for the node to use for the dataexchange plugin i.e. private messaging, only needed if `dataexchange.enabled` is set to false
+  dataexchangeUrl: ""
+
+  # The API key used to authenticate to HTTPS DataExchange, only needed if `dataexchange.enabled` is set to false
+  dataexchangeAPIKey: ""
+
+  # The URL of the IPFS API server to use for the sharedstorage connector, in some cases this is the same as the Gateway URL, see below
+  ipfsApiUrl: ""
+
+  # The basic auth username to use for authenticating to the IPFS API server
+  ipfsApiUsername: ""
+
+  # The basic auth password to use for authenticating to the IPFS API server
+  ipfsApiPassword: ""
+
+  # The URL of the IPFS Gateway server, in some cases this is the same as the API URL
+  ipfsGatewayUrl: ""
+
+  # The basic auth username to use for authenticating to the IPFS Gateway server
+  ipfsGatewayUsername: ""
+
+  # The basic auth password to use for authenticating to the IPFS Gateway server
+  ipfsGatewayPassword: ""
+
+  # If both fabconnect* and ethconnect* / evmconnect* config is provided, determines which plugin to use with the default namespace
+  # Allowed values are 'ethereum' and 'fabric'
+  defaultBlockchainType: ethereum
+
+  # Deprecated: The URL of the Ethconnect API and WS server to use for the blockchain plugin of type `ethereum`
+  ethconnectUrl: ""
+
+  # Deprecated: The basic auth username to use for authenticating to Ethconnect
+  ethconnectUsername: ""
+
+  # Deprecated: The basic auth password to use for authenticating to Ethconnect
+  ethconnectPassword: ""
+
+  # Deprecated: Enables retries when communicating with Ethconnect
+  ethconnectRetry: true
+
+  # Deprecated: The Ethconnect topic to use for blockchain event subscriptions
+  ethconnectTopic: 0
+
+  # Deprecated: The short prefix FireFly will prepend to certain headers it sends to Ethconnect i.e. fly or kld
+  ethconnectPrefixShort: ""
+
+  # Deprecated: The long prefix FireFly will prepend to certain headers it sends to Ethconnect i.e. firefly or kaleido
+  ethconnectPrefixLong: ""
+
+  # The URL of the EVMConnect API and WS server to use for the blockchain plugin of type `ethereum`
+  evmconnectUrl: ""
+
+  # The basic auth username to use for authenticating to EVMConnect
+  evmconnectUsername: ""
+
+  # The basic auth password to use for authenticating to EVMConnect
+  evmconnectPassword: ""
+
+  # Enables retries when communicating with EVMConnect
+  evmconnectRetry: true
+
+  # The EVMConnect topic to use for blockchain event subscriptions
+  evmconnectTopic: 0
+
+  # The URL of the Fabconnect API and WS server to use for the blockchain plugin of type `fabric`
+  fabconnectUrl: ""
+
+  # The Fabric channel to use when communicating with peers and running chaincodes
+  fabconnectChannel: default-channel
+
+  # Enables retries when communicating with Fabconnect
+  fabconnectRetry: true
+
+  # The basic auth username to use for authenticating to Fabconnect
+  fabconnectUsername: ""
+
+  # The basic auth password to use for authenticating to Fabconnect
+  fabconnectPassword: ""
+
+  # The Fabconnect topic to use for blockchain event subscriptions
+  fabconnectTopic: 0
+
+  # The Fabric to use for signing transactions, must be pre-registered and enrolled
+  fabconnectSigner: ""
+
+  # The following values can be used to override the templating of specific plugin sections, in the case where
+  # the user wants greater control to template the sections using global values, additional helpers, etc. OR if they
+  # want to use other plugin types i.e. `fabric` which currently do not exist at the time of writing.
+
+  dataexchangeOverride: ""
+  extraDataexchanges: ""
+
+  databaseOverride: ""
+  extraDatabases: ""
+
+  sharedstorageOverride: ""
+  extraSharedstorage: ""
+
+  tokensOverride: ""
+  extraTokens: ""
+
+  blockchainOverride: ""
+   # type: ethereum
+   # ethereum:
+   #   ethconnect:
+   #     url: http://ethconnect_0:8080
+   #     instance: /contracts/firefly
+   #     topic: "0"
+  extraBlockchains: ""
+
+  extraNamespaces: ""
+
+  # Instead of using the provided config template from _helpers.tpl, users can use to customize the config using their own global values, etc.
+  # See the firefly.coreConfig helper for an example of a Go-templated config file that could be provided here as a multiline string.
+  templateOverride: ""
+
+# Configures the properties of the StatefulSet, Service, and optionally Ingress used to deploy and expose FireFly
+core:
+  image:
+    repository: ghcr.io/hyperledger/firefly
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    # tag: ""
+
+  extraEnv: []
+    # - name: FIREFLY_LOG_LEVEL
+    #   value: debug
+
+  imagePullSecrets: []
+
+  nodeNameOverride: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  initContainers: ""
+  extraContainers: ""
+  extraVolumes: ""
+  extraVolumeMounts: ""
+  volumeClaimTemplates: ""
+
+  service:
+    type: ClusterIP
+    httpPort: 5000
+    adminPort: 5001
+    debugPort: 6060
+    metricsPort: 5100
+
+  metrics:
+    serviceMonitor:
+      enabled: false
+      scrapeInterval: 10s
+
+  # NOTE: The Ingress will only expose the HTTP API and never the Admin or Debug APIs
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  jobs:
+    # Whether to create a migration job to perform migrations each time a new tag is pushed for the FireFly image (supports DB creation)
+    postgresMigrations:
+      enabled: false
+      extraEnv: []
+      #  - name: PSQL_URL
+      #    valueFrom:
+      #      secretKeyRef:
+      #        name: custom-psql-config
+      #        key: psql_url
+
+    # Whether to use a Job to perform auto-registration of the FireFly runtime.
+    # Note registration will not be successful until the new node has caught up with the head of the chain.
+    registration:
+      enabled: false
+      ffUrl: ""
+      ffNamespaces:
+        - default
+
+# Configures the properties of the StatefulSet, Service, and optionally Ingress used to deploy and expose FireFly HTTPS DataExchange
+dataexchange:
+
+  # Toggles whether or not to deploy HTTPS DataExchange alongside FireFly, and therefore how the dataexchange section of its config will be templated
+  enabled: true
+
+  # The API key the HTTPS DataExchange will use to secure its API and WS server for communication from FireFly
+  apiKey: ""
+
+  # A Secret providing the mTLS certificate the HTTPS DataExchange will use to authenticate to peers
+  tlsSecret:
+    enabled: true
+    name: ""
+
+  # Configures whether to generate a mTLS certificate for peer-to-peer communications
+  # using cert-manager's Certificate resource, recommended
+  certificate:
+    enabled: false
+    duration: ""
+    issuerRef: {}
+     # name: internal-ca
+     # kind: ClusterIssuer
+
+  extraEnv: []
+    # - name: LOG_LEVEL
+    #   value: DEBUG
+
+  image:
+    repository: ghcr.io/hyperledger/firefly-dataexchange-https
+    pullPolicy: IfNotPresent
+    tag: v1.3.1
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  podAnnotations: {}
+
+  podSecurityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    apiPort: 5000
+    p2pPort: 5001
+
+  # The Ingress templated will only expose the HTTPS DataExchange P2P endpoint, as its API will only need to be accessible to FireFly
+  # NOTE: TLS is not templatable for the Ingress since it is provided as part of the mTLS certificate above. TLS passthrough
+  #       must be enabled for the Ingress in order for mTLS to work, make sure to set the appropriate annotation for your
+  #       respective Ingress controller. See below for an example of the passthrough annotation for ingress-nginx.
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    hosts:
+      - host: chart-example.local
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+  #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  persistentVolumes:
+    # split into two mounts: /data/peers and /data/peer-certs
+    peers:
+      accessModes:
+        - ReadWriteOnce
+      annotations: {}
+      size: 1Gi
+      storageClass: ""
+    blobs:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      annotations: {}
+      subPath: ""
+      size: 2Gi
+      storageClass: ""
+
+erc1155:
+  enabled: false
+
+  # The address of the deployed ERC1155 contract to use
+  contractAddress: "/contracts/erc1155Address"
+
+  # The Ethconnect URI representing the ERC1155 tokens contract
+  ethconnectTopic: "tokensERC1155"
+
+  image:
+    repository: ghcr.io/hyperledger/firefly-tokens-erc1155
+    pullPolicy: IfNotPresent
+    tag: v1.3.4
+
+  imagePullSecrets: []
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+erc20erc721:
+  enabled: false
+
+  # The wallet address of the owner of the contract instances and therefore the token pools that will be associated with them
+  # defaults to config.organizationKey if this is not set
+  ownerKey: ""
+
+  # The Ethconnect topic to use for tokens event subscriptions
+  ethconnectTopic: "tokensERC20ERC721"
+
+  erc20:
+    enabled: true
+
+    # The name and symbol to use when instantiating the ERC20 tokens contract
+    tokenName: "FF"
+
+  erc721:
+    enabled: false
+
+    # The name and symbol to use when instantiating the ERC721 tokens contract
+    tokenName: "NFFT"
+
+  # The URI to use when publishing ABIs to Ethconnect, should either be '/abis' or '/gateways'. Defaults to '/abis'
+  abisUri: ""
+
+  # The URI to use when looking up contracts instances via Ethconnect, should either be '/contracts' or '/instances'. Defaults to '/contracts'
+  contractsUri: ""
+
+  job:
+    deployContracts:
+      enabled: true
+
+  image:
+    repository: ghcr.io/hyperledger/firefly-tokens-erc20-erc721
+    pullPolicy: IfNotPresent
+    tag: v1.3.4
+
+  imagePullSecrets: []
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+# Configures the resources used to deploy the optional ethconnect Ethereum blockchain connector
+ethconnect:
+  enabled: false
+
+  config:
+    jsonRpcUrl: ""
+    eventPollingIntervalSec: 1
+    maxTXWaitTimeSec: 60
+    maxInFlight: 10
+    gasEstimationFactor: 1.2
+    catchupModePageSize: 5000
+    catchupModeBlockGap: 5000
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  imagePullSecrets: []
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  image:
+    repository: ghcr.io/hyperledger/firefly-ethconnect
+    pullPolicy: Always
+    tag: v3.3.3
+
+  extraEnv: []
+    # - name: LOG_LEVEL
+    #   value: DEBUG
+
+  service:
+    type: ClusterIP
+    apiPort: 5102
+
+  initContainers: ""
+  extraContainers: ""
+  extraVolumeClaimTemplates: ""
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+    # requests:
+    #   cpu: 100m
+  #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  job:
+    registerContracts:
+      enabled: true
+
+  persistentVolume:
+    accessModes:
+      - ReadWriteOnce
+    annotations: {}
+    size: 2Gi
+    storageClass: ""
+
+sandbox:
+  enabled: true
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  imagePullSecrets: []
+
+  image:
+    repository: ghcr.io/hyperledger/firefly-sandbox
+    pullPolicy: IfNotPresent
+    tag: v1.1.6
+
+  resources: {}
+
+  # NOTE: The Ingress will only expose the HTTP API and never the Admin or Debug APIs
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  service:
+    type: ClusterIP
+    port: 3001
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+evmconnect:
+  podSecurityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    fsGroup: 1001
+  enabled: false

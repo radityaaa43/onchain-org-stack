@@ -1,0 +1,6 @@
+dependencies:
+- name: firefly-evmconnect
+  repository: file://../firefly-evmconnect
+  version: 0.8.1
+digest: sha256:c0667e26ddf46c4f05dd607bd661b32b8ce1cb183c0b0cd31ce019ebe82329fb
+generated: "2026-06-05T19:36:57.641322988Z"
