@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: scylla
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://scylladb.github.io/scylla-operator/charts
+    chart: scylla
+    targetRevision: 1.14.0
+    helm:
+      parameters:
+        - name: scylla.developerMode
+          value: "true"
+        - name: scylla.datacenter
+          value: dc1
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: scylla
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

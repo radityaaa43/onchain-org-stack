@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firefly-signer
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ${REPO_URL}
+    targetRevision: ${REPO_REVISION}
+    path: charts/firefly-signer
+    helm:
+      values: |
+        image:
+          repository: ghcr.io/hyperledger/firefly-signer
+          pullPolicy: Always
+          tag: "latest"
+
+        backend:
+          url: "http://besu-node1.paladin.svc:8545"
+          chainId: ${BESU_CHAIN_ID}
+
+        signer:
+          enabled: true
+
+        service:
+          type: ClusterIP
+          port: 8545
+
+        resources: {}
+
+        podSecurityContext:
+          fsGroup: 1001
+
+        securityContext: {}
+
+        podAnnotations: {}
+
+        nodeSelector:
+          kubernetes.io/arch: amd64
+        tolerations: []
+        affinity: {}
+
+        persistentVolume:
+          enabled: false
+          size: 1Gi
+          storageClass: ""
+          accessModes:
+            - ReadWriteOnce
+
+        extraEnv: []
+        initContainers: ""
+        extraContainers: ""
+
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: firefly
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

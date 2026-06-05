@@ -1,0 +1,39 @@
+---
+# onchain-org-stack config.yaml
+# THE ONLY FILE YOU EDIT PER ORG.
+# After editing: bash scripts/render.sh --write
+#                git add -A && git commit -m "configure org"
+#                bash bootstrap.sh
+
+org:
+  name: org1
+  domain: org1.cluster.local
+  email: admin@org1.example
+
+repo:
+  url: https://github.com/YOUR_ORG/onchain-org-stack
+  revision: HEAD
+
+arch: amd64
+
+besu:
+  chainId: 1337
+  blockPeriodSeconds: 1
+  zeroBaseFee: true
+  evmFork: cancun
+  imageTag: latest
+  nodeCount: 1
+  baseNodePort: 31545
+
+paladin:
+  imageTag: latest
+  baseNodePort: 31548
+  domains:
+    noto: true
+    zeto: true
+    pente: true
+
+crossOrg:
+  mode: standalone
+  sharedGenesisRef: ""
+  peers: []

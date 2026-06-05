@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: firefly-config
+  namespace: firefly
+data:
+  firefly.core.yaml: |
+    debug: true
+    admin:
+      enabled: true
+      port: 5001
+    http:
+      port: 5000
+      address: "0.0.0.0"
+      headers:
+        enabled: true
+    metrics:
+      enabled: true
+      port: 6000
+      address: "0.0.0.0"
+    database:
+      type: postgres
+      postgres:
+        url: "postgres://postgres:PLACEHOLDER_PG_PASSWORD@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
+        migrationsDirectory: "./db/migrations/postgres"
+        migrationsAuto: true
+    blockchain:
+      ethereum:
+        evmconnect:
+          url: "http://firefly-evmconnect:5000"
+    tokens:
+      - name: erc20erc721
+        plugin: erc20erc721
+        connector:
+          url: "http://firefly-tokens-erc20erc721:5000"
+    sharedstorage:
+      ipfs:
+        api:
+          url: "http://ipfs-ipfs.firefly.svc:5001"
+        gateway:
+          url: "http://ipfs-ipfs.firefly.svc:8080"
+    namespaces:
+      default: "default"
+      predefined:
+        - name: "default"
+          description: "Default namespace"
+          multiparty:
+            enabled: true
+            org:
+              name: "${ORG_NAME}"
+            node:
+              name: "${ORG_NAME}-node"
+            contract:
+              location: "PLACEHOLDER_CONTRACT_ADDR"
+
+          plugins:
+            - blockchain
+            - sharedstorage
+            - tokens

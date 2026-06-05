@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firefly-tokens-erc20erc721
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  project: default
+  source:
+    repoURL: https://hyperledger.github.io/firefly-helm-charts
+    chart: firefly-tokens-erc20erc721
+    targetRevision: "*"
+    helm:
+      values: |
+        config:
+          ethconnect:
+            url: "http://firefly-evmconnect.firefly.svc:5008"
+          ethconnectTopic: "erc20erc721"
+
+        nodeSelector:
+          kubernetes.io/arch: amd64
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: firefly
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firefly-evmconnect
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  project: default
+  source:
+    repoURL: https://hyperledger.github.io/firefly-helm-charts
+    chart: firefly-evmconnect
+    targetRevision: "*"
+    helm:
+      values: |
+        connector:
+          url: "http://besu-node1.paladin.svc:8545"
+
+        nodeSelector:
+          kubernetes.io/arch: amd64
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: firefly
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

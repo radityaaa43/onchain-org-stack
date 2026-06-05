@@ -1,0 +1,9 @@
+architecture: standalone
+
+auth:
+  enabled: true
+  rootPassword: mongodb-root-pass
+
+persistence:
+  enabled: true
+  size: 8Gi

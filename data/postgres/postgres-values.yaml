@@ -1,0 +1,14 @@
+auth:
+  existingSecret: postgres-credentials
+  secretKeys:
+    adminPasswordKey: postgres-password
+
+primary:
+  persistence:
+    enabled: true
+    size: 8Gi
+  initdb:
+    scripts:
+      init.sql: |
+        CREATE DATABASE IF NOT EXISTS firefly;
+        CREATE DATABASE IF NOT EXISTS paladin;

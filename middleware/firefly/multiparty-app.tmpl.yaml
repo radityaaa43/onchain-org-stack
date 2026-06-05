@@ -1,0 +1,179 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firefly-multiparty
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ${REPO_URL}
+    targetRevision: ${REPO_REVISION}
+    path: charts/firefly
+    helm:
+      values: |
+        config:
+          debugEnabled: true
+          adminEnabled: true
+          metricsEnabled: true
+          preInit: false
+          multipartyEnabled: true
+          defaultBlockchainType: ethereum
+
+          organizationName: "${ORG_NAME}"
+
+          fireflyContractAddress: "PLACEHOLDER_CONTRACT_ADDR"
+          fireflyContractFirstEvent: 0
+          fireflyContracts:
+            - address: "PLACEHOLDER_CONTRACT_ADDR"
+              firstEvent: 0
+
+          evmconnectUrl: "http://firefly-evmconnect:5000"
+
+          ethconnectTopic: "0"
+          ethconnectPrefixShort: "fly"
+          ethconnectPrefixLong: "firefly"
+          ethconnectRetry: true
+
+          httpRequestTimeout: 600s
+          httpRequestMaxTimeout: 600s
+
+          postgresUrl: "postgres://postgres:PLACEHOLDER_PG_PASSWORD@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
+          postgresAutomigrate: true
+
+          ipfsApiUrl: "http://ipfs-ipfs.firefly.svc:5001"
+          ipfsGatewayUrl: "http://ipfs-ipfs.firefly.svc:8080"
+
+        core:
+          image:
+            repository: ghcr.io/hyperledger/firefly
+            tag: "latest"
+            pullPolicy: IfNotPresent
+
+          nodeSelector:
+            kubernetes.io/arch: amd64
+
+          metrics:
+            serviceMonitor:
+              enabled: false
+          livenessProbe:
+            initialDelaySeconds: 900
+            periodSeconds: 30
+            failureThreshold: 10
+          readinessProbe:
+            initialDelaySeconds: 900
+            periodSeconds: 30
+            failureThreshold: 10
+          initContainers: |
+              - name: wait-for-dx
+                image: busybox:1.36.1
+                command: ['sh', '-c', 'until nc -z firefly-dx 5000; do echo waiting for dx; sleep 2; done;']
+              - name: create-database
+                image: postgres:15
+                command: ['sh', '-c']
+                args:
+                  - |
+                    DB_NAME="firefly"
+                    USER_NAME="postgres"
+                    PG_PASS=$(cat /var/run/secrets/postgres/postgres-password)
+                    PSQL_SERVER="postgres://postgres:${PG_PASS}@postgres-postgresql.database.svc:5432/postgres?sslmode=disable"
+                    PSQL_URL="postgres://postgres:${PG_PASS}@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
+
+                    echo "Waiting for PostgreSQL server..."
+                    until psql "${PSQL_SERVER}" -c "SELECT 1;" > /dev/null 2>&1; do
+                      echo "PostgreSQL not ready, waiting..."
+                      sleep 2
+                    done
+
+                    echo "Checking if database exists..."
+                    if ! psql "${PSQL_SERVER}" -c "SELECT datname FROM pg_database WHERE datname = '${DB_NAME}';" | grep -q "${DB_NAME}"; then
+                      echo "Database '${DB_NAME}' does not exist; creating."
+                      psql "${PSQL_SERVER}" -c "CREATE DATABASE \"${DB_NAME}\" WITH OWNER \"${USER_NAME}\";"
+                    else
+                      echo "Database '${DB_NAME}' already exists."
+                    fi
+
+                    echo "Waiting for database to be available..."
+                    until psql "${PSQL_URL}" -c "SELECT 1;" > /dev/null 2>&1; do
+                      echo "Database not ready, waiting..."
+                      sleep 2
+                    done
+                    echo "Database is ready!"
+                volumeMounts:
+                  - name: postgres-secret
+                    mountPath: /var/run/secrets/postgres
+                    readOnly: true
+
+          extraVolumes: |
+            - name: postgres-secret
+              secret:
+                secretName: postgres-credentials
+          extraVolumeMounts: []
+
+          jobs:
+            postgresMigrations:
+              enabled: false
+            registration:
+              enabled: true
+              ffUrl: "http://firefly:5000"
+              ffNamespaces:
+                - default
+
+        dataexchange:
+          enabled: true
+          image:
+            repository: ghcr.io/hyperledger/firefly-dataexchange-https
+            tag: "latest"
+            pullPolicy: Always
+          certificate:
+            enabled: true
+            issuerRef:
+              kind: ClusterIssuer
+              name: selfsigned-ca
+          tlsSecret:
+            enabled: false
+
+        sandbox:
+          enabled: false
+
+        signer:
+          enabled: true
+
+        evmconnect:
+          enabled: true
+          image:
+            repository: ghcr.io/hyperledger/firefly-evmconnect
+            tag: "latest"
+            pullPolicy: Always
+          nodeSelector:
+            kubernetes.io/arch: amd64
+          config:
+            jsonRpcUrl: "http://firefly-signer.firefly.svc:8545"
+            policyEngine: |
+              policyengine.simple:
+                fixedGasPrice: "0"
+                resubmitInterval: 5m
+                gasOracle:
+                  mode: fixed
+
+        erc1155:
+          enabled: false
+
+        erc20erc721:
+          enabled: true
+          image:
+            repository: ghcr.io/hyperledger/firefly-tokens-erc20-erc721
+            tag: "latest"
+            pullPolicy: Always
+          nodeSelector:
+            kubernetes.io/arch: amd64
+          config:
+            ethconnectTopic: "erc20erc721"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: firefly
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

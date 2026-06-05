@@ -1,0 +1,6 @@
+*.log
+.htpasswd
+debug.log
+*.secret.yaml
+.env.local
+vault-keys.json

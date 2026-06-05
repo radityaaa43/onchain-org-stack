@@ -1,0 +1,20 @@
+org:
+  name: ${ORG_NAME}
+  domain: ${ORG_DOMAIN}
+
+besu:
+  chainId: ${BESU_CHAIN_ID}
+  nodeCount: ${BESU_NODE_COUNT}
+  imageTag: ${BESU_IMAGE_TAG}
+  baseNodePort: ${BESU_BASE_NODE_PORT}
+  blockPeriod: ${BESU_BLOCK_PERIOD}
+  zeroBaseFee: ${BESU_ZERO_BASE_FEE}
+  evmFork: ${BESU_EVM_FORK}
+
+paladin:
+  imageTag: ${PALADIN_IMAGE_TAG}
+  baseNodePort: ${PALADIN_BASE_PORT}
+  domains:
+    noto: true
+    zeto: true
+    pente: true

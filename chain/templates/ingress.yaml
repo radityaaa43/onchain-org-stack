@@ -1,0 +1,37 @@
+{{- range $i := until (int .Values.besu.nodeCount) }}
+{{- $n := add1 $i }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paladin{{ $n }}-ingress
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`paladin{{ $n }}.{{ $.Values.org.domain }}`)
+      kind: Rule
+      services:
+        - name: paladin-node{{ $n }}
+          port: 8548
+  tls:
+    secretName: paladin{{ $n }}-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: paladin{{ $n }}-ui-ingress
+  namespace: {{ $.Release.Namespace }}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`paladin{{ $n }}-ui.{{ $.Values.org.domain }}`)
+      kind: Rule
+      services:
+        - name: paladin-node{{ $n }}-ui
+          port: 8080
+  tls:
+    secretName: paladin{{ $n }}-ui-tls
+{{- end }}
