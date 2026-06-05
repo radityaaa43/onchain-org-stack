@@ -40,6 +40,12 @@ helm upgrade --install cert-manager jetstack/cert-manager \
   --set crds.enabled=true \
   --wait
 
+echo "Waiting for cert-manager webhook to be ready..."
+kubectl wait deployment/cert-manager-webhook \
+  --namespace cert-manager \
+  --for=condition=Available \
+  --timeout=120s
+
 kubectl apply -f platform/cert-manager/cluster-issuers.yaml
 
 # ─── STEP 2: traefik config ───────────────────

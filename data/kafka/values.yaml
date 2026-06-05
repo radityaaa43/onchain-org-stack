@@ -1,4 +1,4 @@
 kafka:
   replicas: 1
   storage: 8Gi
-  version: 3.9.0
+  version: 4.2.0

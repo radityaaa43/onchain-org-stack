@@ -1,0 +1,20 @@
+org:
+  name: org1
+  domain: org1.cluster.local
+
+besu:
+  chainId: 1337
+  nodeCount: 1
+  imageTag: latest
+  baseNodePort: 31545
+  blockPeriod: 1
+  zeroBaseFee: true
+  evmFork: cancun
+
+paladin:
+  imageTag: latest
+  baseNodePort: 31548
+  domains:
+    noto: true
+    zeto: true
+    pente: true
