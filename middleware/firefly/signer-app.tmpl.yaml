@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: ${REPO_URL}
-    targetRevision: HEAD
+    repoURL: https://github.com/hyperledger/firefly-helm-charts.git
+    targetRevision: main
     path: charts/firefly-signer
     helm:
       values: |
@@ -18,7 +18,7 @@ spec:
 
         backend:
           url: "http://besu-node1.paladin.svc:8545"
-          chainId: 1337
+          chainId: ${BESU_CHAIN_ID}
 
         signer:
           enabled: true

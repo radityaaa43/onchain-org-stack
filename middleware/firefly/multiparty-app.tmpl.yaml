@@ -6,8 +6,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: ${REPO_URL}
-    targetRevision: HEAD
+    repoURL: https://github.com/hyperledger/firefly-helm-charts.git
+    targetRevision: main
     path: charts/firefly
     helm:
       values: |
@@ -19,7 +19,7 @@ spec:
           multipartyEnabled: true
           defaultBlockchainType: ethereum
 
-          organizationName: "org1"
+          organizationName: "${ORG_NAME}"
 
           fireflyContractAddress: "PLACEHOLDER_CONTRACT_ADDR"
           fireflyContractFirstEvent: 0
