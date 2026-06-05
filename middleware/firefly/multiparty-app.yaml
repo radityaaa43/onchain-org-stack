@@ -27,7 +27,7 @@ spec:
             - address: "0x42699A7612A82f1d9C36148af9C77354759b210b"
               firstEvent: 0
 
-          evmconnectUrl: "http://firefly-evmconnect:5000"
+          evmconnectUrl: "http://firefly-multiparty-evmconnect:5000"
 
           ethconnectTopic: "0"
           ethconnectPrefixShort: "fly"
@@ -37,7 +37,7 @@ spec:
           httpRequestTimeout: 600s
           httpRequestMaxTimeout: 600s
 
-          postgresUrl: "postgres://postgres:PLACEHOLDER_PG_PASSWORD@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
+          postgresUrl: "postgres://postgres:ytoyJlgOuvkzXTyg51T5@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
           postgresAutomigrate: true
 
           ipfsApiUrl: "http://ipfs-ipfs.firefly.svc:5001"
@@ -66,7 +66,7 @@ spec:
           initContainers: |
               - name: wait-for-dx
                 image: busybox:1.36.1
-                command: ['sh', '-c', 'until nc -z firefly-dx 5000; do echo waiting for dx; sleep 2; done;']
+                command: ['sh', '-c', 'until nc -z firefly-multiparty-dx 5000; do echo waiting for dx; sleep 2; done;']
               - name: create-database
                 image: postgres:15
                 command: ['sh', '-c']
@@ -114,7 +114,7 @@ spec:
               enabled: false
             registration:
               enabled: true
-              ffUrl: "http://firefly:5000"
+              ffUrl: "http://firefly-multiparty:5000"
               ffNamespaces:
                 - default
 
