@@ -76,7 +76,7 @@ _export_vars
 if [[ "${1:-}" == "--write" ]]; then
   echo "Rendering templates in $REPO_ROOT ..."
   while IFS= read -r -d '' tmpl; do
-    out="${tmpl%.tmpl}"
+    out="${tmpl%.tmpl.yaml}.yaml"
     echo "  $tmpl -> $out"
     # Replace ${VARNAME} placeholders
     content="$(cat "$tmpl")"
