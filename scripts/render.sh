@@ -6,8 +6,13 @@
 
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CONFIG="$REPO_ROOT/config.yaml"
+REPO_ROOT="${REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+CONFIG="${CONFIG:-$REPO_ROOT/config.yaml}"
+
+if [[ ! -f "$CONFIG" ]]; then
+  echo "ERROR: config.yaml not found at $CONFIG" >&2
+  exit 1
+fi
 
 if ! command -v python3 &>/dev/null; then
   echo "ERROR: python3 not found. Install python3 and PyYAML." >&2

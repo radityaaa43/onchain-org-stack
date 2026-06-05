@@ -1,0 +1,32 @@
+org:
+  name: acme
+  domain: acme.example.com
+  email: ops@acme.example.com
+
+repo:
+  url: https://github.com/acme/onchain-org-stack
+  revision: v1.0.0
+
+arch: amd64
+
+besu:
+  chainId: 2025
+  blockPeriodSeconds: 2
+  zeroBaseFee: false
+  evmFork: london
+  imageTag: 24.9.0
+  nodeCount: 3
+  baseNodePort: 30000
+
+paladin:
+  imageTag: 0.0.12
+  baseNodePort: 30003
+  domains:
+    noto: true
+    zeto: false
+    pente: true
+
+crossOrg:
+  mode: shared-chain-group
+  sharedGenesisRef: "https://genesis.acme.example.com/genesis.json"
+  peers: []
