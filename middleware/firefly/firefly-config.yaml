@@ -21,7 +21,7 @@ data:
     database:
       type: postgres
       postgres:
-        url: "postgres://postgres:PLACEHOLDER_PG_PASSWORD@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
+        url: "postgres://postgres:ytoyJlgOuvkzXTyg51T5@postgres-postgresql.database.svc:5432/firefly?sslmode=disable"
         migrationsDirectory: "./db/migrations/postgres"
         migrationsAuto: true
     blockchain:
@@ -51,7 +51,7 @@ data:
             node:
               name: "org1-node"
             contract:
-              location: "PLACEHOLDER_CONTRACT_ADDR"
+              location: "0x42699A7612A82f1d9C36148af9C77354759b210b"
 
           plugins:
             - blockchain

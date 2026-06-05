@@ -21,10 +21,10 @@ spec:
 
           organizationName: "org1"
 
-          fireflyContractAddress: "PLACEHOLDER_CONTRACT_ADDR"
+          fireflyContractAddress: "0x42699A7612A82f1d9C36148af9C77354759b210b"
           fireflyContractFirstEvent: 0
           fireflyContracts:
-            - address: "PLACEHOLDER_CONTRACT_ADDR"
+            - address: "0x42699A7612A82f1d9C36148af9C77354759b210b"
               firstEvent: 0
 
           evmconnectUrl: "http://firefly-evmconnect:5000"

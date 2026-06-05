@@ -84,7 +84,9 @@ key = [k for k in compiled if "Firefly" in k and "IBatchPin" not in k][0]
 abi = compiled[key]["abi"]
 bytecode = compiled[key]["bin"]
 
+from web3.middleware import ExtraDataToPOAMiddleware
 w3 = Web3(Web3.HTTPProvider(BESU_RPC))
+w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 assert w3.is_connected(), "Cannot connect to Besu RPC"
 
 # Deployer account
