@@ -42,14 +42,15 @@ spec:
   ignoreDifferences:
     - group: core.paladin.io
       kind: Paladin
-      managedFieldsManagers:
-        - manager
       jsonPointers:
         - /spec/service/ports
+      jqPathExpressions:
+        - .spec.transports[].ports[].protocol
+        - .spec.transports[].tls.issuer
+        - .spec.secretBackedSigners[].derivationType
+        - .spec.secretBackedSigners[].keySelectorMustNotMatch
     - group: core.paladin.io
       kind: Besu
-      managedFieldsManagers:
-        - manager
       jsonPointers:
         - /spec/service/ports
   destination:
