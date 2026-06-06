@@ -49,6 +49,7 @@ spec:
         - .spec.transports[].tls.issuer
         - .spec.secretBackedSigners[].derivationType
         - .spec.secretBackedSigners[].keySelectorMustNotMatch
+        - .spec.domains
     - group: core.paladin.io
       kind: Besu
       jsonPointers:
