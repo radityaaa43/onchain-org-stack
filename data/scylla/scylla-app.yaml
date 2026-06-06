@@ -12,11 +12,23 @@ spec:
     chart: scylla
     targetRevision: v1.21.0
     helm:
-      parameters:
-        - name: scylla.developerMode
-          value: "true"
-        - name: scylla.datacenter
-          value: dc1
+      values: |
+        scylla:
+          developerMode: true
+          datacenter: dc1
+        racks:
+          - name: us-east-1a
+            members: 1
+            storage:
+              storageClassName: local-path
+              capacity: 10Gi
+            resources:
+              limits:
+                cpu: "1"
+                memory: 1Gi
+              requests:
+                cpu: "500m"
+                memory: 1Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: scylla
