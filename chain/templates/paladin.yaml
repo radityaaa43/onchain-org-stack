@@ -40,10 +40,14 @@ spec:
           besuGenesis:
             chainID: {{ .Values.besu.chainId }}
   ignoreDifferences:
-    - group: ""
-      kind: Service
+    - group: core.paladin.io
+      kind: Paladin
       jsonPointers:
-        - /spec/ports
+        - /spec/service/ports
+    - group: core.paladin.io
+      kind: Besu
+      jsonPointers:
+        - /spec/service/ports
   destination:
     server: https://kubernetes.default.svc
     namespace: paladin
